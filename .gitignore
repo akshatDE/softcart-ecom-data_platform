@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# Data artifacts
+data/generated/*
+data/analytics/*
+!data/generated/.gitkeep
+!data/analytics/.gitkeep
+logs/*
+!logs/.gitkeep
+
+# Secrets / environment
+.env
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Airflow runtime
+airflow/logs/
+airflow/plugins/
+airflow-webserver.pid
+
+# claude 
+.claude
+

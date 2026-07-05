@@ -1,0 +1,239 @@
+name: softcart-data-platform
+
+# Environment overrides shared by every container that runs SoftCart Python
+# code. Hostnames switch from localhost (host runs) to service names.
+x-softcart-env: &softcart-env
+  SOFTCART_MYSQL__HOST: mysql
+  SOFTCART_MYSQL__USER: ${MYSQL_USER:-softcart}
+  SOFTCART_MYSQL__PASSWORD: ${MYSQL_PASSWORD:-softcart_change_me}
+  SOFTCART_MYSQL__DATABASE: ${MYSQL_DATABASE:-softcart_oltp}
+  SOFTCART_MONGODB__HOST: mongodb
+  SOFTCART_MONGODB__USER: ${MONGO_USER:-softcart}
+  SOFTCART_MONGODB__PASSWORD: ${MONGO_PASSWORD:-softcart_change_me}
+  SOFTCART_POSTGRES__HOST: postgres
+  SOFTCART_POSTGRES__USER: ${POSTGRES_USER:-softcart}
+  SOFTCART_POSTGRES__PASSWORD: ${POSTGRES_PASSWORD:-softcart_change_me}
+  SOFTCART_POSTGRES__DATABASE: ${POSTGRES_DB:-softcart_staging}
+  SOFTCART_OLLAMA__HOST: ${OLLAMA_UPSTREAM_HOST:-ollama}
+  SOFTCART_OLLAMA__MODEL: ${OLLAMA_MODEL:-qwen3.5}
+  SOFTCART_DUCKDB__DATABASE_PATH: /opt/softcart/data/analytics/softcart.duckdb
+  SOFTCART_DATA_GENERATION__OUTPUT_DIR: /opt/softcart/data/generated
+  SOFTCART_LOGGING__LOG_DIR: /opt/softcart/logs
+  SOFTCART_DASHBOARD__API_BASE_URL: http://api:8000
+
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.10.4-python3.12
+  environment: &airflow-env
+    <<: *softcart-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY:-}
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: >-
+      postgresql+psycopg2://${POSTGRES_USER:-softcart}:${POSTGRES_PASSWORD:-softcart_change_me}@postgres:5432/airflow
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "true"
+    PYTHONPATH: /opt/softcart
+    _PIP_ADDITIONAL_REQUIREMENTS: >-
+      pymysql cryptography pymongo duckdb==1.0.0 loguru Faker sqlparse plotly requests
+  volumes:
+    - ./airflow/dags:/opt/airflow/dags
+    - ./src:/opt/softcart/src
+    - ./resources:/opt/softcart/resources
+    - ./data:/opt/softcart/data
+    - ./logs:/opt/softcart/logs
+  depends_on:
+    postgres:
+      condition: service_healthy
+    mysql:
+      condition: service_healthy
+    mongodb:
+      condition: service_healthy
+  networks:
+    - softcart-net
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: softcart-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_change_me}
+      MYSQL_USER: ${MYSQL_USER:-softcart}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-softcart_change_me}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-softcart_oltp}
+    ports:
+      - "${MYSQL_HOST_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./resources/config/mysql_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./resources/config/seed_data.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root_change_me}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - softcart-net
+
+  mongodb:
+    image: mongo:7.0
+    container_name: softcart-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-softcart}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-softcart_change_me}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-softcart_catalog}
+    ports:
+      - "${MONGO_HOST_PORT:-27017}:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - softcart-net
+
+  postgres:
+    image: postgres:16
+    container_name: softcart-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-softcart}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-softcart_change_me}
+      POSTGRES_DB: ${POSTGRES_DB:-softcart_staging}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_postgres.sh:/docker-entrypoint-initdb.d/01_init.sh:ro
+      - ./resources/config/postgres_staging_schema.sql:/docker-entrypoint-initdb.d/02_staging_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-softcart} -d ${POSTGRES_DB:-softcart_staging}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - softcart-net
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: softcart-ollama
+    ports:
+      - "${OLLAMA_HOST_PORT:-11434}:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+    networks:
+      - softcart-net
+
+  # One-shot job: pulls the configured model into the ollama volume.
+  ollama-pull:
+    image: ollama/ollama:latest
+    container_name: softcart-ollama-pull
+    entrypoint: ["/bin/sh", "-c", "ollama pull ${OLLAMA_MODEL:-qwen3.5}"]
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - softcart-net
+
+  airflow-init:
+    <<: *airflow-common
+    container_name: softcart-airflow-init
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - >-
+        airflow db migrate &&
+        airflow users create
+        --username "${AIRFLOW_ADMIN_USER:-admin}"
+        --password "${AIRFLOW_ADMIN_PASSWORD:-admin_change_me}"
+        --firstname Soft --lastname Cart --role Admin
+        --email sharmaakshat0001@gmail.com || true
+    restart: "no"
+
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: softcart-airflow-webserver
+    command: webserver
+    ports:
+      - "${AIRFLOW_HOST_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: softcart-airflow-scheduler
+    command: scheduler
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname $${HOSTNAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+
+  api:
+    build: .
+    container_name: softcart-api
+    command: uvicorn src.main.api.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *softcart-env
+    ports:
+      - "${API_HOST_PORT:-8000}:8000"
+    volumes:
+      - ./data:/opt/softcart/data
+      - ./logs:/opt/softcart/logs
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    networks:
+      - softcart-net
+
+  dashboard:
+    build: .
+    container_name: softcart-dashboard
+    command: >-
+      streamlit run src/main/dashboard/streamlit_app.py
+      --server.address 0.0.0.0 --server.port 8501 --server.headless true
+    environment:
+      <<: *softcart-env
+    ports:
+      - "${DASHBOARD_HOST_PORT:-8501}:8501"
+    volumes:
+      - ./data:/opt/softcart/data
+      - ./logs:/opt/softcart/logs
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - softcart-net
+
+volumes:
+  mysql_data:
+  mongo_data:
+  postgres_data:
+  ollama_data:
+
+networks:
+  softcart-net:
+    driver: bridge
