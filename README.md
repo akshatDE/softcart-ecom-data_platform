@@ -8,21 +8,8 @@ quality — and runs entirely locally with Docker Compose, including
 AI-assisted SQL generation via a local Ollama model.
 
 ## Architecture
+![softcart-ecom](softcart-ecom.png)
 
-```
-                    ┌──────────────────────── Airflow (orchestration) ───────────────────────┐
-                    │                                                                         │
-┌─────────────┐   ┌─▼──────────┐    ┌──────────────┐    ┌───────────────┐    ┌────────────┐  │
-│  Faker data  │  │ MySQL 8.0  │    │ PostgreSQL 16 │    │    DuckDB     │    │  FastAPI   │  │
-│  generation  ├─►│   (OLTP)   ├───►│   (staging)   ├───►│ (star schema) │◄───┤   (API)    │  │
-│  (Python)    │  └────────────┘    └──────▲───────┘    └───────▲───────┘    └─────▲──────┘  │
-│              │  ┌────────────┐           │                    │                  │         │
-│              ├─►│ MongoDB 7  ├───────────┘             quality gates       ┌─────┴──────┐  │
-└─────────────┘   │ (catalog)  │        (extract+clean)  (pytest + gates)    │ Streamlit  │  │
-                  └────────────┘                                             │ dashboard  │  │
-                       Ollama (Qwen) ── NLP→SQL ── SQLValidator ──► DuckDB   └────────────┘  │
-                    └─────────────────────────────────────────────────────────────────────────┘
-```
 
 **Flow:** Faker generates referentially consistent flat files → they are
 bulk-loaded into MySQL (transactions) and MongoDB (product catalog) → the
