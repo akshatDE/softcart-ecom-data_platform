@@ -1,219 +1,255 @@
-# SoftCart Data Platform
+<div align="center">
 
-A complete, production-style, end-to-end data engineering platform for the
-fictional e-commerce company **SoftCart**. It simulates the full data
-engineering lifecycle — generation, ingestion, storage, transformation,
-orchestration, dimensional modeling, analytics, dashboarding, and data
-quality — and runs entirely locally with Docker Compose, including
-AI-assisted SQL generation via a local Ollama model.
+# 👋 Hi, I'm Akshat Sharma
 
-## Architecture
-![softcart-ecom](softcart-ecom.png)
+### Data Engineer × AI Developer
 
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=22&duration=3000&pause=900&color=00D9FF&center=true&vCenter=true&width=850&lines=Building+Scalable+Data+Platforms;Engineering+Production+ETL+%26+ELT+Pipelines;Exploring+AI+%2B+Data+Infrastructure;Building+with+Spark+%7C+Airflow+%7C+BigQuery+%7C+LLMs" alt="Typing SVG" />
 
-**Flow:** Faker generates referentially consistent flat files → they are
-bulk-loaded into MySQL (transactions) and MongoDB (product catalog) → the
-staging service extracts, cleans, and lands everything in PostgreSQL →
-the transformation service builds a Kimball star schema in DuckDB →
-FastAPI serves it to the Streamlit dashboard, including a natural-language
-query endpoint backed by Ollama and a strict SQL safety validator.
+<br/>
 
-## Technology stack
+<a href="https://akshatde-portfolio.base44.app/">
+  <img src="https://img.shields.io/badge/Portfolio-Visit-00D9FF?style=for-the-badge&logo=googlechrome&logoColor=white" />
+</a>
+<a href="https://www.linkedin.com/in/akshat-sharma-35a514222">
+  <img src="https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" />
+</a>
+<a href="mailto:sharmaakshat0001@gmail.com">
+  <img src="https://img.shields.io/badge/Email-Contact_Me-EA4335?style=for-the-badge&logo=gmail&logoColor=white" />
+</a>
 
-| Layer | Technology |
-|---|---|
-| OLTP | MySQL 8.0 |
-| NoSQL catalog | MongoDB 7.0 |
-| DWH staging | PostgreSQL 16 |
-| DWH analytics | DuckDB (star schema) |
-| ETL | Python, SQLAlchemy, pandas |
-| Data generation | Python, Faker |
-| Orchestration | Apache Airflow 2.9 (LocalExecutor) |
-| API | FastAPI + Uvicorn |
-| Dashboard | Streamlit + Plotly |
-| NLP → SQL | Ollama (Qwen, local) |
-| Testing | Pytest |
-| Logging | Loguru |
-| Containers | Docker Compose |
+</div>
 
-## Project layout
+---
 
-```
-src/main/
-  models/        # dataclass domain models (customer, product, order, ...)
-  factories/     # Faker-based generators with realistic distributions
-  databases/     # MySQL / MongoDB / PostgreSQL / DuckDB connectors
-  services/      # generation, ingestion, staging, transformation,
-                 # data quality, analytics, NLP-to-SQL
-  api/           # FastAPI app + analytics and NLP routes
-  dashboard/     # Streamlit app + chart components per tab
-  utility/       # config loader, loguru setup, SQL validator, exceptions
-  main.py        # CLI pipeline runner
-airflow/dags/    # softcart_pipeline_dag.py
-resources/config/# config_file.ini + all SQL schemas + seed data
-scripts/         # init/load/run helper shell scripts
-tests/           # pytest data-quality + NLP-SQL security suites
-```
+## 🚀 About Me
 
-## Setup
+I build data platforms, ETL/ELT pipelines, analytical systems, and AI-powered data applications.
 
-Prerequisites: Docker Desktop (8 GB+ RAM recommended — Ollama needs a few GB).
+Three years of production data engineering taught me the unglamorous parts — reconciliation, quality gates, failure triage, the schema conversation you have six months before anyone notices you were right. That's the foundation. AI is the layer I'm building on top of it: RAG, local LLMs, Text-to-SQL, tool-calling agents.
 
-```bash
-cp .env.example .env          # adjust passwords if you like
-docker compose up -d --build  # starts all services
-```
+Most teams bolt AI onto their stack after the fact. I'd rather design for it from the start.
 
-First boot takes a few minutes: MySQL/Postgres run their init scripts,
-Airflow migrates its metadata DB, and `ollama-pull` downloads the model
-configured in `.env` (`OLLAMA_MODEL`, default `qwen3.5` — any Qwen-family
-model tag available in your Ollama registry works; smaller tags run faster
-on modest hardware).
+**🔍 Open to Data Engineering and AI-integrated data roles.**
 
-| Service | URL |
-|---|---|
-| Airflow UI | http://localhost:8080 (user/pass from `.env`, default `admin`/`admin_change_me`) |
-| FastAPI docs | http://localhost:8000/docs |
-| Streamlit dashboard | http://localhost:8501 |
-| Ollama | http://localhost:11434 |
+---
 
-## Running the pipeline
+## 🛠️ Tech Stack
 
-**Option A — Airflow (recommended).** Open the Airflow UI, enable the
-`softcart_pipeline` DAG, and trigger it. Tasks:
+<div align="center">
 
-```
-generate_source_data → [load_mysql_oltp, load_mongodb_catalog]
-  → extract_to_staging → staging_quality_gate
-  → build_duckdb_analytics → analytics_quality_gate → refresh_serving_layer
-```
+**Languages**
 
-Each task has retries, structured logging, and fails the run if a data
-quality gate does not pass.
+<img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+<img src="https://img.shields.io/badge/SQL-336791?style=for-the-badge&logo=postgresql&logoColor=white" />
+<img src="https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white" />
 
-**Option B — one shot from the CLI:**
+**Data Engineering & Orchestration**
 
-```bash
-./scripts/run_pipeline.sh            # full pipeline inside the api container
-./scripts/run_pipeline.sh stage      # or any single step
-./scripts/load_data.sh               # just generate + load the source systems
-```
+<img src="https://img.shields.io/badge/Apache%20Airflow-017CEE?style=for-the-badge&logo=apacheairflow&logoColor=white" />
+<img src="https://img.shields.io/badge/Apache%20Spark%20(PySpark)-E25A1C?style=for-the-badge&logo=apachespark&logoColor=white" />
+<img src="https://img.shields.io/badge/Databricks-FF3621?style=for-the-badge&logo=databricks&logoColor=white" />
+<img src="https://img.shields.io/badge/pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white" />
 
-**Option C — on the host** (needs `pip install -r requirements.txt`; the
-default config already points at `localhost` and the published ports):
+<sub>ETL/ELT · Dimensional (Kimball) Modeling · Medallion Architecture · Data Quality · Distributed & Batch Processing</sub>
 
-```bash
-python -m src.main.main --step all
-python -m src.main.main --step generate   # generate | load-sources | stage | quality | transform
-```
+**Databases & Warehouses**
 
-Data volumes (customers, products, orders, date range, seed) are configured
-in `resources/config/config_file.ini` under `[data_generation]`.
+<img src="https://img.shields.io/badge/BigQuery-669DF6?style=for-the-badge&logo=googlebigquery&logoColor=white" />
+<img src="https://img.shields.io/badge/Snowflake-29B5E8?style=for-the-badge&logo=snowflake&logoColor=white" />
+<img src="https://img.shields.io/badge/DuckDB-FFF000?style=for-the-badge&logo=duckdb&logoColor=black" />
+<img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
+<img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" />
+<img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" />
 
-## Configuration
+**Cloud**
 
-Everything lives in `resources/config/config_file.ini`. Any value can be
-overridden with an environment variable `SOFTCART_<SECTION>__<KEY>`, e.g.
-`SOFTCART_MYSQL__HOST=mysql`. That is exactly how docker-compose retargets
-the same config from `localhost` to container hostnames — no values are
-hard-coded in scripts.
+<img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white" />
+<img src="https://img.shields.io/badge/Google%20Cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" />
 
-## Data model (DuckDB star schema)
+<sub>S3 · Glue · Lambda · Athena · Step Functions · EventBridge · SNS · CloudWatch · EC2</sub>
 
-Facts are at **order-item grain**:
+**AI / LLM Engineering**
 
-- `fact_sales(sales_key, order_id, order_item_id, order_date_key, customer_key, product_key, category_key, channel_key, promotion_key, payment_method_key, quantity, unit_price, gross_revenue, discount_amount, net_revenue)`
-- `fact_returns(return_key, ..., return_date_key, quantity_returned, refund_amount, reason)`
+<img src="https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=ollama&logoColor=white" />
+<img src="https://img.shields.io/badge/LangChain-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white" />
+<img src="https://img.shields.io/badge/LangGraph-111111?style=for-the-badge" />
+<img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" />
 
-Dimensions: `dim_date`, `dim_customer`, `dim_product`, `dim_category`,
-`dim_channel`, `dim_promotion` (with a reserved *No Promotion* row),
-`dim_payment_method`. All dimensions carry integer surrogate keys plus the
-original business keys for lineage. The model supports revenue (gross/net),
-quantity, discounts, returns, repeat purchase behaviour, CLV, promotion,
-product/category, and channel analyses.
+<sub>RAG · Text-to-SQL · Tool-Calling Agents · Local Inference · Prompt & Context Engineering</sub>
 
-## API
+**Backend & DevOps**
 
-Interactive docs at `http://localhost:8000/docs`. Highlights:
+<img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
+<img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" />
+<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+<img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" />
+<img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" />
 
-```
-GET  /analytics/revenue-by-category      GET  /analytics/channel-performance
-GET  /analytics/revenue-by-product       GET  /analytics/channel-product-matrix
-GET  /analytics/sales-trend?granularity= GET  /analytics/promotion-performance
-GET  /analytics/customer-segments        GET  /analytics/revenue-concentration?entity=
-GET  /analytics/repeat-vs-one-time       GET  /analytics/kpi-summary
-POST /nlp/query                          {"question": "..."}
-```
+</div>
 
-## Dashboard
+---
 
-Three business tabs plus an AI tab:
+## 🏗️ Featured Engineering Projects
 
-1. **Products & Categories** — revenue vs quantity by category, top products,
-   gross vs net revenue, category trends.
-2. **Customers & Concentration** — repeat vs one-time buyers, spending
-   tiers, CLV distribution, top customers, Pareto revenue-concentration
-   curves for products and customers.
-3. **Channels & Promotions** — revenue/quantity per channel, best sellers
-   per channel, promotion volume vs discount cost and net-revenue impact.
-4. **Ask AI** — natural-language questions answered via Ollama; the
-   generated SQL is always displayed alongside the result.
+### 🛒 SoftCart — E-commerce Data Platform + AI
 
-## NLP-to-SQL safety
+`Airflow` `DuckDB` `PostgreSQL` `MySQL` `MongoDB` `FastAPI` `Ollama` `Docker`
 
-The `/nlp/query` endpoint never trusts the model. Every generated query is:
+End-to-end analytics platform pairing a conventional warehouse architecture with local LLM-powered Text-to-SQL.
 
-1. Stripped of comments and restricted to **exactly one statement**;
-2. Required to be a **SELECT** (CTEs allowed);
-3. Scanned against a **keyword deny-list** (DML/DDL plus DuckDB escape
-   hatches like `ATTACH`, `COPY`, `INSTALL`, `PRAGMA`, `read_csv`);
-4. Checked against a **table allow-list** (the star schema only);
-5. Capped with an enforced **LIMIT**;
-6. Executed on a **read-only** DuckDB connection under a **query timeout**.
+<a href="https://github.com/akshatDE/softcart-ecom-data_platform">
+  <img src="https://raw.githubusercontent.com/akshatDE/softcart-ecom-data_platform/main/softcart-ecom.png" alt="SoftCart architecture" width="100%" />
+</a>
 
-`tests/test_nlp_sql_security.py` is the regression suite for these
-guarantees, including stacked-statement and comment-hidden injection shapes.
+- 2 fact tables at order-item grain, 7 conformed dimensions with surrogate keys
+- Two blocking DQ gates backed by a pytest suite that fails the run on violation
+- SQL safety validator: SELECT-only, keyword denylist, table allowlist, injected LIMIT, read-only connection
+- Docker Compose cut contributor setup from ~2 hours to under 10 minutes
 
-## Data quality
+<a href="https://github.com/akshatDE/softcart-ecom-data_platform">
+  <img src="https://img.shields.io/badge/View_Project-181717?style=for-the-badge&logo=github&logoColor=white" />
+</a>
 
-Five dimensions, testable from the command line:
+---
 
-```bash
-docker exec softcart-api pytest tests/ -v     # or plain `pytest` on the host
-```
+### 📺 YT Trending Data Pipeline — Cloud-Native Analytics Platform
 
-- **Accuracy** — order totals = Σ line totals, payments match orders,
-  net = gross − discount, refunds ≤ line value, valid email formats.
-- **Completeness** — emails, order dates, categories, fact FKs not null.
-- **Consistency** — items↔orders, MySQL product ids exist in the Mongo
-  catalog, fact keys resolve in every dimension, standardized categories,
-  staging vs analytics row counts agree.
-- **Timeliness** — staging audit trail is fresh, latest order date within
-  the configured staleness window, recent pipeline-run timestamp.
-- **Uniqueness** — PKs, emails, surrogate keys, and fact grain unique
-  (rerun-safe: full-refresh loads cannot double-count).
+`AWS` `PySpark` `Glue` `S3` `Athena` `Step Functions` `Lambda` `QuickSight`
 
-Database-backed tests skip cleanly if a layer hasn't been built yet; the
-same checks also run *inside* the pipeline as Airflow quality gates.
+Cloud-native pipeline ingesting and transforming YouTube trending data across 10 regions.
 
-## Troubleshooting
+<a href="https://github.com/akshatDE/YT-Trending-Data-Pipeline">
+  <img src="https://raw.githubusercontent.com/akshatDE/YT-Trending-Data-Pipeline/main/dashboard/infra-screenshots/YT-TrendingPipeline.png" alt="YouTube trending pipeline architecture" width="100%" />
+</a>
 
-- **`docker compose up` fails on ports** — 3306/5432/27017/8000/8080/8501/11434
-  must be free; stop local MySQL/Postgres instances or remap ports.
-- **Airflow webserver keeps restarting** — first boot installs extra pip
-  packages (`_PIP_ADDITIONAL_REQUIREMENTS`); give it 1–2 minutes, then check
-  `docker logs softcart-airflow-webserver`.
-- **Dashboard shows "No analytics data yet"** — the pipeline hasn't run;
-  trigger the DAG or `./scripts/run_pipeline.sh`.
-- **NLP tab errors with "Ollama request failed"** — the model is still
-  downloading; check `docker logs softcart-ollama-pull`. On low-RAM machines
-  set `OLLAMA_MODEL` in `.env` to a smaller tag and rerun
-  `docker compose up -d ollama-pull`.
-- **`fact_sales` DELETE fails with FK errors** — rebuilds clear facts before
-  dimensions by design; if you edited the transformation, keep that order.
-- **Reset everything** — `docker compose down -v` (drops all volumes), then
-  `docker compose up -d --build`.
+- Bronze–Silver–Gold medallion on Snappy Parquet with Hive-style region partitioning, provisioned via Boto3
+- Quality gates at two boundaries: row-count floors, null thresholds, schema conformance, 48-hour freshness
+- Step Functions on a 6-hour EventBridge schedule with exponential-backoff retries and SNS alerts
+- QuickSight dashboard over four Athena SPICE datasets
 
-## License
+<a href="https://github.com/akshatDE/YT-Trending-Data-Pipeline">
+  <img src="https://img.shields.io/badge/View_Project-181717?style=for-the-badge&logo=github&logoColor=white" />
+</a>
 
-Internal SoftCart engineering project — for local development and learning.
+---
+
+### 🤖 Pure Python Local Agent — AI Agent From Scratch
+
+`Python` `Ollama` `Groq` `FastAPI` `Streamlit`
+
+A tool-calling agent built without LangChain or any agent framework — the loop written by hand to understand what the framework abstracts away.
+
+<a href="https://github.com/akshatDE/AgenticAILearning/tree/main/pure-python-local-agent">
+  <img src="https://raw.githubusercontent.com/akshatDE/AgenticAILearning/main/pure-python-local-agent/python_agent_arch.png" alt="Pure Python agent architecture" width="100%" />
+</a>
+
+- JSON tool schemas and a name-to-function registry
+- Bounded loop appending results to conversation memory, exiting on a toolless answer
+- Four tools against live REST APIs: weather, currency, arithmetic, web search
+- Two interchangeable backends: local Qwen 9B offline, hosted Groq for the demo
+
+<a href="https://github.com/akshatDE/AgenticAILearning/tree/main/pure-python-local-agent">
+  <img src="https://img.shields.io/badge/View_Project-181717?style=for-the-badge&logo=github&logoColor=white" />
+</a>
+
+---
+
+## 🎯 Engineering Philosophy
+
+**Build the fundamentals first. Add abstractions when they solve a real problem.**
+
+Understanding the layer underneath the framework is what makes the framework useful — which is why I keep rebuilding things from their primitives before reaching for the library that hides them.
+
+<pre>
+     DATA ENGINEERING
+            │
+   ┌────────┼────────┐
+   ▼        ▼        ▼
+Python     SQL     Spark
+   │        │        │
+   └────────┼────────┘
+            ▼
+  Distributed Systems
+            ▼
+      System Design
+            ▼
+     AI ENGINEERING
+            │
+   ┌────────┼────────┐
+   ▼        ▼        ▼
+  RAG    Agents    LLMs
+   │        │        │
+   └────────┼────────┘
+            ▼
+    AI + Data Systems
+</pre>
+
+**Currently going deeper on:** Spark internals, agentic AI, context engineering, and production AI infrastructure.
+
+---
+
+## 💼 Engineering Experience
+
+**Data Engineer** — Neel Data Pro IT Solutions · Jul 2021 – Jul 2024
+
+- 🔄 Integrated 6+ heterogeneous source systems into a centralized BigQuery warehouse
+- 🗃️ Migrated 10M+ records off legacy systems, reconciling row counts to confirm zero loss at cutover
+- 📦 Processed ~2.5 GB of daily tourism data
+- ⚡ Cut report generation from ~4 hours to 30 minutes for 15+ government stakeholders
+- 🛡️ Implemented validation at load boundaries: row counts, null thresholds, schema conformance, referential integrity
+- 📈 Built 8+ Tableau dashboards tracking segment KPIs, informing 4 strategic funding decisions
+- 📚 Authored pipeline runbooks and a warehouse data dictionary so analysts could self-serve
+
+---
+
+## 🎓 Education & Certifications
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🎓 M.S. Business Analytics
+
+**University of Massachusetts Boston**
+*Major: AI & Data Analytics* · 2024 — 2026
+
+**GPA: 4.0 / 4.0**
+
+Advanced AI/ML · Applied AI · Big Data Processing · Data Warehousing
+
+</td>
+<td width="50%" valign="top">
+
+### 💻 B.Tech Computer Science
+
+**Chitkara University**
+2019 — 2023
+
+**GPA: 3.74 / 4.0**
+
+Programming · Algorithms · Databases · Software Engineering
+
+</td>
+</tr>
+</table>
+
+<div align="center">
+
+<img src="https://img.shields.io/badge/IBM-Data%20Engineering%20Professional-052FAD?style=for-the-badge&logo=ibm&logoColor=white" />
+<img src="https://img.shields.io/badge/Snowflake-University%20Platform%20Skills-29B5E8?style=for-the-badge&logo=snowflake&logoColor=white" />
+<img src="https://img.shields.io/badge/Hugging%20Face-AI%20Agents%20Fundamentals-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black" />
+
+</div>
+
+---
+
+<div align="center">
+
+**Building reliable data systems that power intelligent applications.**
+
+<a href="https://github.com/akshatDE">
+  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" />
+</a>
+
+</div>
