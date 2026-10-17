@@ -1,4 +1,19 @@
-# SoftCart Data Platform
+# 🛒 SoftCart — E-commerce Data Platform + AI
+
+`Airflow` `DuckDB` `PostgreSQL` `MySQL` `MongoDB` `FastAPI` `Ollama` `Docker`
+
+End-to-end analytics platform pairing a conventional warehouse architecture with local LLM-powered Text-to-SQL.
+
+<a href="https://github.com/akshatDE/softcart-ecom-data_platform">
+  <img src="https://raw.githubusercontent.com/akshatDE/softcart-ecom-data_platform/main/softcart-ecom.png" alt="SoftCart architecture" width="100%" />
+</a>
+
+- 2 fact tables at order-item grain, 7 conformed dimensions with surrogate keys
+- Two blocking DQ gates backed by a pytest suite that fails the run on violation
+- SQL safety validator: SELECT-only, keyword denylist, table allowlist, injected LIMIT, read-only connection
+- Docker Compose cut contributor setup from ~2 hours to under 10 minutes
+
+---
 
 An end-to-end ecommerce data engineering platform for the fictional retailer **SoftCart** — simulating real-world data infrastructure from source-system ingestion through dimensional modeling to analytics dashboards. The entire stack runs locally with Docker Compose and includes AI-assisted SQL generation powered by a local LLM via Ollama.
 
@@ -7,8 +22,6 @@ The platform covers the full data engineering lifecycle: **data generation → O
 ---
 
 ## Architecture
-
-![SoftCart Architecture](softcart-ecom.png)
 
 ```
 Data Generation (Python + Faker)
